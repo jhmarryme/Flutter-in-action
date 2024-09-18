@@ -68,7 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    dynamicTabController = DynamicTabController(dynamicTabs: tabs);
+    dynamicTabController =
+        DynamicTabController(dynamicTabs: tabs, onAddTabMoveTo: MoveToTab.next);
     super.initState();
   }
 
@@ -159,7 +160,6 @@ class _MyHomePageState extends State<MyHomePage> {
               onTabChanged: (index) {
                 debugPrint("Tab changed: $index");
               },
-              onAddTabMoveTo: MoveToTab.last,
               // backIcon: Icon(Icons.keyboard_double_arrow_left),
               // nextIcon: Icon(Icons.keyboard_double_arrow_right),
               showBackIcon: showBackIcon,
@@ -175,10 +175,34 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void addTab() {
     var tabNumber = Random.secure().nextInt(99999199);
+
     var result = dynamicTabController.addTab(TabData(
       id: tabNumber,
       routeName: 'Tab $tabNumber',
-      title: Text('Tab $tabNumber 111111111111111111111111'),
+      title: SizedBox(
+        width: 130,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Tab $tabNumber 1111111111111xxxxxxxxxx1111111111111111111111111111',
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.close,
+                size: 15,
+              ),
+              onPressed: () {
+                dynamicTabController.removeTabByTabDataId(tabNumber);
+              },
+              color: Colors.black54,
+            ),
+          ],
+        ),
+      ),
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

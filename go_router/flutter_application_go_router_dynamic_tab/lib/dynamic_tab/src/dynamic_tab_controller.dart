@@ -35,17 +35,17 @@ class DynamicTabController with ChangeNotifier {
       tabData,
     );
     updateTabController(initialIndex: dynamicTabs.length - 1);
-    notifyListeners();
     return true;
   }
 
   void removeTab(int index) {
-    if (dynamicTabs.isNotEmpty) {
-      int newIndex = calcRemoveIndex(index);
-      debugPrint("after remove tab, the newIndex is $newIndex");
+    if (dynamicTabs.isNotEmpty && index < dynamicTabs.length) {
+      int onRemoveInitialIndex =
+          calcOnRemoveInitialIndex(index, moveToTab: onAddTabMoveTo);
+      debugPrint(
+          "after remove tab, the onRemoveInitialIndex is $onRemoveInitialIndex");
       dynamicTabs.removeAt(index);
-      updateTabController(initialIndex: newIndex);
-      notifyListeners();
+      updateTabController(initialIndex: onRemoveInitialIndex);
     }
   }
 
@@ -54,8 +54,6 @@ class DynamicTabController with ChangeNotifier {
       var removeIndex =
           dynamicTabs.indexWhere((element) => element.id == tabDataIndex);
       if (removeIndex >= 0) {
-        debugPrint(
-            'match the tabDataIndex:[$tabDataIndex], TabData: ${dynamicTabs[removeIndex].toString()}, removeIndex:[$removeIndex]');
         removeTab(removeIndex);
       }
     }
@@ -98,23 +96,26 @@ class DynamicTabController with ChangeNotifier {
   }
 
   // ignore: body_might_complete_normally_nullable
-  int calcRemoveIndex(int removeIndex, {MoveToTab moveToTab = MoveToTab.next}) {
+  int calcOnRemoveInitialIndex(int removeIndex,
+      {MoveToTab? moveToTab = MoveToTab.next}) {
     if (activeTab == removeIndex) {
       bool isLast = activeTab == dynamicTabs.length - 1;
       switch (moveToTab) {
         case MoveToTab.next:
-          return isLast ? (activeTab - 1 < 0 ? 0 : activeTab - 1) : activeTab;
+          return isLast ? activeTab - 1 : activeTab;
         case MoveToTab.previous:
-          return activeTab - 1 < 0 ? 0 : activeTab - 1;
+          return activeTab - 1;
         case MoveToTab.first:
           return 0;
         case MoveToTab.last:
-          return dynamicTabs.length - 1;
+          return dynamicTabs.length - 2;
         // case MoveToTab.idol:
         //   return null;
+        case null:
+          return dynamicTabs.length - 2;
       }
     }
-    return activeTab;
+    return activeTab > removeIndex ? activeTab - 1 : activeTab;
   }
 
   void _handleTabChange() {
@@ -135,23 +136,25 @@ class DynamicTabController with ChangeNotifier {
       initialIndex: initialIndex,
     )..addListener(_handleTabChange);
     updateActiveTab(initialIndex);
-    // notifyListeners();
+    notifyListeners();
   }
 
   void updateTabController({TickerProvider? vsync, int initialIndex = 0}) {
-    initialIndex = initialIndex >= 0 ? initialIndex : 0;
+    debugPrint("ready to updateTabController, initialIndex is $initialIndex");
+    updateActiveTab(initialIndex);
     tabController = TabController(
       length: dynamicTabs.length,
       vsync: vsync ?? this.vsync,
-      initialIndex: initialIndex,
+      initialIndex: activeTab,
     )..addListener(_handleTabChange);
-    updateActiveTab(initialIndex);
-    // notifyListeners();
+    notifyListeners();
   }
 
   void updateActiveTab(int activeTab) {
-    this.activeTab = activeTab >= dynamicTabs.length ? 0 : activeTab;
-    notifyListeners();
+    if (activeTab < 0 || activeTab >= dynamicTabs.length) {
+      activeTab = 0;
+    }
+    this.activeTab = activeTab;
   }
 
   @override

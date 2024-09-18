@@ -174,45 +174,7 @@ class _DynamicTabBarWidgetState extends State<DynamicTabBarWidget>
                           isScrollable: widget.isScrollable,
                           controller: dynamicTabController.tabController,
                           tabs: dynamicTabController.dynamicTabs.map((tab) {
-                            return Tab(
-                              child: Stack(
-                                children: [
-                                  // Tab title positioned on the left
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 30.0),
-                                      // Give padding to prevent overlap with the close button
-                                      child: tab.title,
-                                    ),
-                                  ),
-                                  // Close button positioned on the right
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: ClipRect(
-                                      child: SizedBox(
-                                        width: 24.0,
-                                        height: 24.0,
-                                        // Fixed size for the close button
-                                        child: IconButton(
-                                          icon: const Icon(Icons.close,
-                                              size: 16.0),
-                                          // Adjust icon size
-                                          onPressed: () => dynamicTabController
-                                              .removeTabByTabDataId(tab.id),
-                                          padding: EdgeInsets.zero,
-                                          // Remove default padding
-                                          constraints:
-                                              BoxConstraints(), // Remove default constraints
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
+                            return Tab(child: tab.title);
                           }).toList(),
                           // Default Tab properties :---------------------------------------
                           padding: widget.padding,
